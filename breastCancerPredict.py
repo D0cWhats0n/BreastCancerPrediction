@@ -7,6 +7,8 @@ Created on Thu Feb 02 09:36:02 2017
 
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn import tree
+from sklearn import cross_validation
 import os
 
 path = os.path.dirname(__file__)
@@ -17,8 +19,9 @@ print cancer_table.head(3)
 print cancer_table.count()
 
 
-#cleaning data of unwanted unnamed column (in this step NaN values would be ommitted)
+#cleaning data of unwanted unnamed column, id and NaN values (which weren't present in the data set)
 cancer_table.drop('Unnamed: 32', axis=1, inplace=True)
+cancer_table.drop('id', axis=1, inplace=True)
 cancer_table.dropna(inplace=True)
 
 #see if data is biased
@@ -27,7 +30,7 @@ benign_count =  len(cancer_table[cancer_table['diagnosis']=='B'].index)
 
 print marginal_count/float((marginal_count + benign_count)) 
 
-#print scatterplot for finding correlated features
+#idea: radius, area and perimeter should be highly correlated features
 f, (ax1, ax2) = plt.subplots(1, 2)
 f.set_figheight(5)
 f.set_figwidth(10)
@@ -37,9 +40,24 @@ ax2.scatter(cancer_table['radius_mean'],cancer_table['area_mean'],marker='o', c=
 ax2.set_title("radius_mean vs. area_mean")
 
 #Large feature space and only about 550 data points -> Drop spread and worst values and only work with mean values.
-#In addition drop strongly correlated values (perimeter_mean, area_mean)
-#Idea to improve this: drop highly correlated features and then calculate pca 
+#In addition drop strongly correlated values (perimeter_mean and area_mean contains reduntant information compared with radius)
+#Idea to improve this further: calculate pca after dropping reduntant features 
 cancer_table.drop('area_mean', axis=1, inplace=True)
 cancer_table.drop(cancer_table.columns.values[11:31], axis=1, inplace=True)
 
 print cancer_table.head(3)
+
+#split table in features and target
+features = cancer_table.drop('diagnosis', axis=1)
+target = cancer_table['diagnosis']
+
+print features.count
+
+print target.count
+
+#create classifier
+clf_tree = tree.DecisionTreeClassifier()
+
+#k-fold cross validation (5 folds in this case) for measuring the classifiers score (accuracy in this case)
+crossValScore=cross_validation.cross_val_score(clf_tree, features, target, cv=5)
+print("Accuracy: %0.2f (+/- %0.2f)" % (crossValScore.mean(), crossValScore.std() * 2))
