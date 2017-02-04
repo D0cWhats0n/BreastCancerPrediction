@@ -14,7 +14,7 @@ from sklearn.cross_validation import ShuffleSplit
 def ModelLearningCurveClassification(clf, X, y, fold_number=5):
     """ Calculates the performance of a classification model clf with varying sizes of training data.
         The learning and testing scores for the model are then plotted. """
-    
+    pl.figure(2)
     # Create fold_number cross-validation sets for training and testing
     cv = ShuffleSplit(X.shape[0], n_iter = fold_number, test_size = 0.2, random_state = 0)
 
@@ -22,7 +22,7 @@ def ModelLearningCurveClassification(clf, X, y, fold_number=5):
     train_sizes = np.rint(np.linspace(1, X.shape[0]*0.8 - 1, 9)).astype(int)
 
     # Create the figure window
-    fig = pl.figure(figsize=(10,7))
+    #fig = pl.figure(figsize=(10,7))
 
     # Calculate the training and testing scores for classifier clf
     sizes, train_scores, test_scores = curves.learning_curve(clf, X, y, \
@@ -36,21 +36,21 @@ def ModelLearningCurveClassification(clf, X, y, fold_number=5):
 
     # Subplot the learning curve 
 
-    fig.plot(sizes, train_mean, 'o-', color = 'r', label = 'Training Score')
-    fig.plot(sizes, test_mean, 'o-', color = 'g', label = 'Testing Score')
-    fig.fill_between(sizes, train_mean - train_std, \
+    pl.plot(sizes, train_mean, 'o-', color = 'r', label = 'Training Score')
+    pl.plot(sizes, test_mean, 'o-', color = 'g', label = 'Testing Score')
+    pl.fill_between(sizes, train_mean - train_std, \
         train_mean + train_std, alpha = 0.15, color = 'r')
-    fig.fill_between(sizes, test_mean - test_std, \
+    pl.fill_between(sizes, test_mean - test_std, \
         test_mean + test_std, alpha = 0.15, color = 'g')
         
     # Labels
-    fig.set_title('Learning Curve for Classifier')
-    fig.set_xlabel('Number of Training Points')
-    fig.set_ylabel('Score')
-    fig.set_xlim([0, X.shape[0]*0.8])
-    fig.set_ylim([-0.05, 1.05])
+    pl.title('Learning Curve for Classifier')
+    pl.xlabel('Number of Training Points')
+    pl.ylabel('Score')
+    pl.xlim([0, X.shape[0]*0.8])
+    pl.ylim([-0.05, 1.05])
     
     # Visual aesthetics
-    fig.legend(bbox_to_anchor=(1.05, 2.05), loc='lower left', borderaxespad = 0.)
-    fig.tight_layout()
-    fig.show()
+    pl.legend(loc='lower left', borderaxespad = 0.)
+    pl.tight_layout()
+    pl.show()
